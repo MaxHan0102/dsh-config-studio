@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "插件配置",
+    "description": "浏览当前 profile 中所有可配置插件，按其自身 schema 编辑任意非 volatile 字段，并写回 profile 补丁。"
+  }
+}

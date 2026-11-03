@@ -1,0 +1,5 @@
+# dsh-config-studio bundle patch: one Host row. The Client half is declared by
+# `dsh.client` in package.json and served by @deepseek-ai/dsh-client-modules.
+- insert:
+    - id: config-studio
+      name: 'dsh-config-studio'

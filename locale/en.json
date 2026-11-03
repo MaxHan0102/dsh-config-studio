@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Plugin configuration",
+    "description": "Browse every configurable plugin in the active profile, edit any non-volatile field from its own schema, and save it into the profile patch."
+  }
+}
