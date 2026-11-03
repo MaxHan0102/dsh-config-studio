@@ -9,6 +9,30 @@ the `volatile`-only restriction of `settings.mutate`.
 The page appears in **Settings → Plugin configuration** (order 30) beside General
 (通用设置), Models, and Plugins.
 
+## Install
+
+The package is a `dsh.bundle` bundle with no dependencies and no build step, so
+all of these sources are equivalent — pick one:
+
+```bash
+# GitHub release tarball (pinned to a tag, so the URL never rots)
+dsh plugin --profile web add https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
+
+# straight from this repository
+dsh plugin --profile web add github:MaxHan0102/dsh-config-studio
+
+# npm, if you have it
+dsh plugin --profile web add dsh-config-studio
+```
+
+Desktop profiles are managed by the application: open **Settings → Plugins**,
+paste one of those sources into the install box, and follow the restart prompt.
+
+Built and tested against DSH `0.2.1-rc.5`. The Host half needs
+`ctx.configEditor` and `ctx.connection.fetch`; the package declares no version
+range on purpose, so it stays installable on newer builds instead of being
+gated out by a prerelease peer range.
+
 ## What it does
 
 - **List** — every entry `configEditor.entries()` returns, with its package
