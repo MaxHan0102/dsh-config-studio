@@ -9,6 +9,8 @@
 </p>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/dsh-config-studio"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-config-studio" /></a>
+  <a href="https://www.npmjs.com/package/dsh-config-studio"><img alt="npm downloads" src="https://img.shields.io/npm/dm/dsh-config-studio" /></a>
   <a href="https://github.com/MaxHan0102/dsh-config-studio/releases"><img alt="release" src="https://img.shields.io/github/v/release/MaxHan0102/dsh-config-studio?label=release" /></a>
   <a href="https://github.com/MaxHan0102/dsh-config-studio/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/MaxHan0102/dsh-config-studio" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
@@ -42,7 +44,13 @@
 桌面 profile 由应用独占管理，`dsh plugin` 装不进去：
 
 1. 打开 **设置 → 插件**；
-2. 在安装框里粘贴下面任一地址：
+2. 在安装框里输入 npm 包名：
+
+   ```text
+   dsh-config-studio
+   ```
+
+   也可以使用 Release tarball：
 
    ```text
    https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
@@ -59,7 +67,10 @@
 ### dsh web 或自定义 profile
 
 ```bash
-# Release tarball（钉在 tag 上，链接不会失效）
+# npm registry（推荐）
+dsh plugin --profile web add dsh-config-studio
+
+# 或使用 Release tarball（钉在 tag 上，链接不会失效）
 dsh plugin --profile web add https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
 
 # 或者直接从仓库安装
@@ -70,10 +81,10 @@ dsh plugin --profile web add github:MaxHan0102/dsh-config-studio
 
 ### 更新
 
-换新 tag 重跑安装命令：
+安装 npm 上的最新版本：
 
 ```bash
-dsh plugin --profile web add https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.1/dsh-config-studio-0.1.1.tgz
+dsh plugin --profile web add dsh-config-studio@latest
 ```
 
 桌面版用插件卡片上的更新按钮。git 方式安装没有自动更新检查，需要先移除再重新安装。
