@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Plugin configuration",
-    "description": "Browse every configurable plugin in the active profile, edit any non-volatile field from its own schema, and save it into the profile patch."
+    "description": "Find plugin settings, inspect effective values and their source, preview changes, keep drafts and undo the latest save."
   }
 }

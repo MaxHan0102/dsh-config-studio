@@ -31,12 +31,24 @@
 - **浏览**——列出 `configEditor.entries()` 返回的全部条目，显示包名、字段数、是否已覆盖、当前状态；支持按 id 或包名搜索；在「仅可编辑」（默认）和「全部」之间切换；可按**功能**（模型与推理、Agent 与预设、工具与技能、联网、账号与凭据、执行与文件、会话与存储、界面、平台服务、其他）或按**来源**（官方 / 第三方）分组；分组可折叠；进入条目再返回，浏览状态不丢。
 - **编辑**——每个顶层配置键一个控件：文本、数字、开关、枚举下拉，对象和数组用 JSON 编辑器；每行显示当前生效值、是否来自 profile 补丁，并提供一键**恢复默认**。
 - **先复核再保存**——保存前给出补丁形态的变更 diff；revision 校验会拒绝覆盖并发编辑；结果行会说明是「已应用」还是「覆盖已移除」。
-- **默认只读的边界**——密钥、`!!js` 表达式、无法识别的 schema 结构、超大条目一律不可写（见下表）。
+- **默认只读的边界**——密钥、`!!js` 表达式、无法识别的 schema 结构一律不可写（见下表）。
 - **中英双语**——跟随 Harness 语言切换，包括导航名、页面内所有文案和错误提示。
+
+> `dev` 分支包含开发版本 `0.2.0-dev.2`，尚未发布到 npm。下面新增的草稿、变更记录与新版界面属于此开发版本；`main` 保留稳定版源码。
 
 ## 安装
 
-已发布到 npm（[`dsh-config-studio`](https://www.npmjs.com/package/dsh-config-studio)），同时也是一个普通的 `dsh.bundle` 包，**零依赖、无构建步骤**。下面几种安装源装的是同一份代码，按宿主选一种即可。
+已发布到 npm（[`dsh-config-studio`](https://www.npmjs.com/package/dsh-config-studio)），同时也是一个普通的 `dsh.bundle` 包，**运行时零外部依赖、无构建步骤**。npm 和 Release 压缩包装的是已发布版本，开发分支可能包含尚未发布的改动。
+
+### 开发分支
+
+体验本分支时，在桌面版插件安装框输入 `github:MaxHan0102/dsh-config-studio#dev`；独立命令行测试 profile 可执行：
+
+```bash
+dsh plugin --profile web add 'github:MaxHan0102/dsh-config-studio#dev'
+```
+
+桌面版切换第三方插件的安装来源时，需要先卸载原安装再安装。继续开发源码可使用 `git clone --branch dev https://github.com/MaxHan0102/dsh-config-studio.git`，并参照下方「开发」部分。
 
 ### npm（推荐）
 
@@ -125,7 +137,6 @@ dsh plugin --profile web remove dsh-config-studio
 | 未求值的 `!!js` 表达式 | 只有 YAML 能安全表达 |
 | 表单无法识别的 schema 类型 | 没有安全的控件 |
 | 字段带 `meta.disabled` | 插件自己禁用了它 |
-| 条目超过 64 KiB | 单个表单里改不动 |
 | 条目被禁用、加载失败、未激活或是分组 | 当前不可寻址 |
 | 插件没有声明 `Config` | 没有可生成表单的 schema |
 
@@ -143,7 +154,7 @@ dsh plugin --profile web remove dsh-config-studio
 
 - **Client 半边**（`client.js`）——以模块加载器格式注册 `settings.section`，不 import 任何 Harness 客户端包；控件自绘，样式只用主题 token。
 
-写入会校验两次：请求中按插件 schema 校验一次，`configEditor.edit()` 内部再校验一次——后者持有 profile 锁、保留注释与 `!!js`、原子写入、重载条目，并在重载失败时回滚文件。`revision` 是「继承层 + profile 覆盖 + 原始 config」的哈希，过期表单会被拒绝而不是静默覆盖。
+版本检查、候选值构造和 schema 预校验都在 `configEditor.edit()` 的写入锁内执行，使用锁内最新配置。宿主随后校验并原子写入、重载，失败时回滚。写入后的单份原始配置最多 64 KiB；已经超限的配置可以缩减后保存。所有嵌套表达式标记均受到保护，普通 JSON 输入不能引入表达式。异常只返回稳定错误码与安全说明。
 
 ## 常见问题
 
@@ -166,24 +177,47 @@ dsh plugin --profile web remove dsh-config-studio
 
 ## 开发
 
-仓库就是安装产物——纯 JavaScript，无需构建。
-
-```text
-index.js           Host 半边：schema 解析、端点、校验
-client.js          Client 半边：设置分区、表单、diff、i18n
-cordis.patch.yml   bundle 补丁，插入 Host 条目
-locale/*.json      插件页展示用的元数据
-icon.svg           插件列表用的图标
-```
-
-用一次性 profile 跑当前代码：
+运行时仍为纯 JavaScript，零外部依赖、无需构建。测试工具仅作为 devDependencies 安装。
 
 ```bash
-cp -R ~/.dsh/profiles /tmp/dsh-home/profiles
-DSH_HOME=/tmp/dsh-home dsh --profile web --no-open --port 0
+npm ci
+npm run check
+npm test
+npm run dev
 ```
 
-把工作副本装进那个 profile（`dsh plugin --profile web add <绝对路径>`），改完刷新页面。Host 半边通过重新启用插件来重载，Client 半边在页面刷新时重新拉取。
+`npm run dev` 输出只监听 `127.0.0.1` 的测试页面地址。页面使用真实插件代码与合成配置，写入器只修改内存；可测试保存、撤销、密钥保护、异常和冲突。它不等同于真实 DSH 宿主的磁盘写入/重载测试。修改客户端代码后刷新页面；修改 Host 或测试页面入口后重启测试服务器。
+
+```text
+index.js           DSH Host 入口
+host.js            接口、写入锁内协调、会话变更记录
+config-model.js    配置投影、敏感字段保护、校验与变更构造
+classification.js  条目功能分类
+client.js          设置界面、表单、草稿、弹窗与中英文本
+scripts/           隔离测试页面（不随插件发布）
+test/              Host 与 React 回归测试（不随插件发布）
+```
+
+真实 Host 集成测试需要另行准备一个独立测试 profile。对启动和安装命令使用同一个环境变量；不要将开发安装命令指向日常使用的 profile：
+
+```bash
+# 此目录应事先包含已准备好的测试 profiles/web。
+export DSH_HOME=/absolute/path/to/prepared-test-dsh-home
+dsh plugin --profile web add /absolute/path/to/dsh-config-studio
+dsh --profile web --no-open --port 0
+```
+
+桌面版的 profile 由桌面应用管理。上面的命令仅用于独立命令行测试宿主。
+
+## 草稿、来源与撤销
+
+- 字段分别标明默认值、继承值、自定义值或上层配置；布尔开关和枚举显示实际可编辑的生效值。
+- 搜索包含中文常用名称、分类、说明与字段名。列表支持已修改、不可用和最近使用筛选；详情支持字段搜索。
+- 返回列表可保留草稿。切换设置页或关闭设置后，草稿保留在当前页面进程内；整页刷新、重启应用或重载插件后不保证保留。草稿不写入浏览器持久存储。
+- 保存冲突会保留草稿，必须对比最新值并确认后才能再次保存。
+- “本次运行的变更记录”只存在宿主内存中，每个条目保留最近 5 次、最多 24 个条目。只有最新记录且版本未改变时可以撤销；宿主/插件重启后记录消失。
+- 对象和简单数组可以使用结构化表单，也可切换 JSON。复杂字段保留专属说明，并提供格式化和校验。
+- 保存会替换完整 config，其他已继承的原始值也会固定在当前 profile；预览明确显示这一行为。
 
 ## 许可证
 

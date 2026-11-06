@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "插件配置",
-    "description": "浏览当前 profile 中所有可配置插件，按其自身 schema 编辑任意非 volatile 字段，并写回 profile 补丁。"
+    "description": "按名称或字段查找插件设置，查看生效值与来源，在保存前预览变更，保留草稿并撤销最近保存。"
   }
 }

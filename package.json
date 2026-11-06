@@ -1,6 +1,6 @@
 {
   "name": "dsh-config-studio",
-  "version": "0.1.0",
+  "version": "0.2.0-dev.2",
   "type": "module",
   "description": "Visual editor for the active DSH profile's plugin configuration: browse every addressable Loader entry, render a form from its Config schema, and write non-volatile fields into the profile patch.",
   "keywords": [
@@ -39,7 +39,10 @@
     "icon.svg",
     "LICENSE",
     "README.md",
-    "README.zh.md"
+    "README.zh.md",
+    "host.js",
+    "config-model.js",
+    "classification.js"
   ],
   "dsh": {
     "bundle": {
@@ -55,5 +58,19 @@
     },
     "manifestVersion": 1
   },
-  "icon": "./icon.svg"
+  "icon": "./icon.svg",
+  "devDependencies": {
+    "@deepseek-ai/schemastery": "^3.19.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "^31.0.0",
+    "prettier": "^3.9.10",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "dev": "node scripts/dev-server.mjs",
+    "check": "node --check client.js && node --check host.js && node --check config-model.js && node --check classification.js",
+    "format": "prettier --write client.js index.js host.js config-model.js classification.js scripts/*.mjs test/*.mjs"
+  }
 }

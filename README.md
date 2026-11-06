@@ -31,12 +31,24 @@ That restriction is reasonable for live-reloadable preferences, but it leaves mo
 - **Browse** — every entry `configEditor.entries()` returns, with package name, field count, override badge, and current status. Search by id or package; switch between *editable only* (default) and *all*; group by **function** (models, agents, tools, web, accounts, runtime, sessions, interface, platform, other) or by **origin** (built-in / third-party); collapse sections; the browsing state survives opening an entry and coming back.
 - **Edit** — one field per top-level config key: text, number, switch, select for enums, and a JSON editor for objects and arrays. Each row shows the value in effect, whether it comes from the profile patch, and a one-click **Reset** back to the inherited value.
 - **Review, then save** — a patch-shaped diff of what will be written, a revision check that refuses to overwrite a concurrent edit, and a result line that says whether the override was applied or removed.
-- **Read-only by design** — credentials, `!!js` expressions, unsupported schema shapes, and oversized entries are never writable here (table below).
+- **Read-only by design** — credentials, `!!js` expressions, unsupported schema shapes are never writable here (table below).
 - **Bilingual** — English and Simplified Chinese, following the Harness language, including the nav label, every section, and error messages.
+
+> The `dev` branch contains `0.2.0-dev.2`, which has not been released to npm. Draft recovery, change history and the updated interface described here belong to this development version. `main` remains the stable source branch.
 
 ## Install
 
-Published on npm as [`dsh-config-studio`](https://www.npmjs.com/package/dsh-config-studio), and also a plain `dsh.bundle` bundle with **no dependencies and no build step**. Every source below installs the same code — pick the one that matches your host.
+Published on npm as [`dsh-config-studio`](https://www.npmjs.com/package/dsh-config-studio), and also a plain `dsh.bundle` bundle with **no runtime dependencies and no build step**. npm and release tarballs install published versions; the development branch can contain newer changes.
+
+### Development branch
+
+To try this branch, paste `github:MaxHan0102/dsh-config-studio#dev` into the Desktop plugin installer, or use a separate command-line test profile:
+
+```bash
+dsh plugin --profile web add 'github:MaxHan0102/dsh-config-studio#dev'
+```
+
+Desktop requires an existing third-party installation to be removed before installing it from another source. For source development, clone with `git clone --branch dev https://github.com/MaxHan0102/dsh-config-studio.git` and follow the Development section below.
 
 ### npm (recommended)
 
@@ -125,7 +137,6 @@ Decided on the Host; the browser cannot bypass them.
 | An unevaluated `!!js` expression | only YAML can express it safely |
 | A schema type the form does not understand | no safe control exists |
 | `meta.disabled` on the field | the plugin disables it |
-| Entry larger than 64 KiB | too large to edit responsibly in one form |
 | Entry disabled, failed, inactive, or a group | not addressable right now |
 | Plugin declares no `Config` | nothing to generate a form from |
 
@@ -143,7 +154,7 @@ Two halves, both in this repository:
 
 - **Client** (`client.js`) — a `settings.section` registration written in the module-loader format, with no Harness client package imports. Controls are the plugin's own, styled with theme tokens.
 
-Writes are validated twice: once against the plugin's schema in the request, and again inside `configEditor.edit()`, which holds the profile lock, preserves comments and `!!js`, writes atomically, reloads the entry, and rolls the file back if the reload fails. `revision` is a hash of the entry's inherited layer, profile override, and raw config, so a stale form is refused instead of silently overwriting.
+Revision checks, candidate construction and schema prevalidation run inside the `configEditor.edit()` callback, against its lock-protected current configuration. The host then validates and atomically persists/reloads the result, rolling back on failure. The resulting raw config is limited to 64 KiB; oversized existing configs can be reduced. JSON edits cannot introduce executable expression markers. Third-party exception text never crosses the API boundary.
 
 ## Troubleshooting
 
@@ -166,24 +177,47 @@ Writes are validated twice: once against the plugin's schema in the request, and
 
 ## Development
 
-The repository is the installed artifact — plain JavaScript, no build.
-
-```text
-index.js           Host half: schema introspection, endpoints, validation
-client.js          Client half: settings section, form, diff, i18n
-cordis.patch.yml   Bundle patch that inserts the Host row
-locale/*.json      Display metadata for the plugins page
-icon.svg           Icon used by the plugin list
-```
-
-To run a checkout against a disposable profile:
+The runtime is plain JavaScript with no external dependencies or build step. Authoring and testing tools are devDependencies only.
 
 ```bash
-cp -R ~/.dsh/profiles /tmp/dsh-home/profiles
-DSH_HOME=/tmp/dsh-home dsh --profile web --no-open --port 0
+npm ci
+npm run check
+npm test
+npm run dev
 ```
 
-Link the working copy into that profile (`dsh plugin --profile web add <absolute path>`) and reload the page after edits. The Host half is reloaded by re-enabling the plugin; the client half is re-fetched on page reload.
+The development server prints a loopback-only (`127.0.0.1`) URL. It uses the actual plugin and synthetic configuration with an in-memory writer, including save, undo, credential, error and conflict scenarios. This does not replace disk/reload testing in a real DSH host. Refresh after client changes; restart the server after host or development-entry changes.
+
+```text
+index.js           DSH host entry point
+host.js            Endpoints, locked writes and session history
+config-model.js    Projection, sensitive fields, validation and edits
+classification.js  Entry categories
+client.js          Settings UI, drafts, dialogs and localization
+scripts/           Isolated development page (not published)
+test/              Host and React regression tests (not published)
+```
+
+For real host integration, prepare a separate disposable profile first and use the same DSH_HOME for both installation and launch:
+
+```bash
+# This directory must already contain the prepared test profiles/web.
+export DSH_HOME=/absolute/path/to/prepared-test-dsh-home
+dsh plugin --profile web add /absolute/path/to/dsh-config-studio
+dsh --profile web --no-open --port 0
+```
+
+Desktop owns its profile. These commands are for a separate command-line test host.
+
+## Drafts, provenance and undo
+
+- Fields distinguish defaults, inherited, custom and higher-priority values; switches and enums display their effective editable value.
+- Search includes localized common names, categories, descriptions and field names. Filters include modified, unavailable and recently opened entries; details have field search.
+- Drafts can survive returning to the list or closing the settings section within the current page process. They are not persisted to browser storage and may be lost on a full page, plugin or application reload.
+- Conflicts preserve drafts and require comparison with the latest saved values before another save.
+- History is host memory only: five records per entry, at most 24 entries. Only the latest unchanged revision can be undone. Restarting the host/plugin clears it.
+- Objects and simple arrays have structured controls with a JSON alternative. Complex fields keep their descriptions and support formatting and validation.
+- Saving replaces the complete config and pins other existing inherited raw values in the active profile. The preview explains this behavior.
 
 ## License
 
