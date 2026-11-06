@@ -10,7 +10,6 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/dsh-config-studio"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-config-studio" /></a>
-  <a href="https://www.npmjs.com/package/dsh-config-studio"><img alt="npm downloads" src="https://img.shields.io/npm/dm/dsh-config-studio" /></a>
   <a href="https://github.com/MaxHan0102/dsh-config-studio/releases"><img alt="release" src="https://img.shields.io/github/v/release/MaxHan0102/dsh-config-studio?label=release" /></a>
   <a href="https://github.com/MaxHan0102/dsh-config-studio/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/MaxHan0102/dsh-config-studio" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
@@ -37,57 +36,39 @@
 
 ## 安装
 
-本包是 `dsh.bundle` 包，**零依赖、无构建步骤**，下面几种安装源等价，按你的宿主选一种即可。
+已发布到 npm（[`dsh-config-studio`](https://www.npmjs.com/package/dsh-config-studio)），同时也是一个普通的 `dsh.bundle` 包，**零依赖、无构建步骤**。下面几种安装源装的是同一份代码，按宿主选一种即可。
 
-### DSH 桌面版（推荐）
-
-桌面 profile 由应用独占管理，`dsh plugin` 装不进去：
-
-1. 打开 **设置 → 插件**；
-2. 在安装框里输入 npm 包名：
-
-   ```text
-   dsh-config-studio
-   ```
-
-   也可以使用 Release tarball：
-
-   ```text
-   https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
-   ```
-
-   或
-
-   ```text
-   github:MaxHan0102/dsh-config-studio
-   ```
-
-3. 确认列表里的 **dsh-config-studio** 为启用状态，然后刷新页面（`Cmd/Ctrl+R`）。
-
-### dsh web 或自定义 profile
+### npm（推荐）
 
 ```bash
-# npm registry（推荐）
 dsh plugin --profile web add dsh-config-studio
+```
 
-# 或使用 Release tarball（钉在 tag 上，链接不会失效）
+把 `web` 换成你自己的 profile 名；宿主没立刻加载就重启一次，然后刷新页面。
+
+**DSH 桌面版** 的 profile 由应用独占管理，上面的命令装不进去：打开 **设置 → 插件**，在安装框里粘贴 `dsh-config-studio`，确认插件为启用状态，然后刷新页面（`Cmd/Ctrl+R`）。
+
+### 不用 npm
+
+同一个版本也可以从 Release tarball 或直接从仓库安装，适合连不上 registry 的宿主：
+
+```bash
+# Release tarball（钉在 tag 上，链接不会失效）
 dsh plugin --profile web add https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
 
 # 或者直接从仓库安装
 dsh plugin --profile web add github:MaxHan0102/dsh-config-studio
 ```
 
-把 `web` 换成你自己的 profile 名。宿主没有立刻加载就重启一次，然后刷新页面。
+桌面版把任一地址粘进同一个安装框即可。
 
 ### 更新
-
-安装 npm 上的最新版本：
 
 ```bash
 dsh plugin --profile web add dsh-config-studio@latest
 ```
 
-桌面版用插件卡片上的更新按钮。git 方式安装没有自动更新检查，需要先移除再重新安装。
+桌面版用插件卡片上的更新按钮；tarball / git 方式没有自动更新检查，需要按新 tag 或新提交移除后重装。
 
 ### 卸载
 
@@ -101,12 +82,13 @@ dsh plugin --profile web remove dsh-config-studio
 
 | | |
 |---|---|
-| DSH | `0.2.1-rc.5` 及以上（在 `0.2.1-rc.5` 上测试） |
+| DSH | `0.2.1-rc.5` 及以上（在 `0.2.1-rc.5` 与 `0.2.2-rc.1` 上测试） |
 | 依赖服务 | `ctx.configEditor` 与 `ctx.connection.fetch`，Web 组合默认都带 |
 | Node | 20+ |
 | 浏览器 | 任意当前版本的 Web GUI；这个分区就是一个普通的客户端插件 |
 
 包刻意不声明 DSH 版本范围：它是纯 JavaScript、不 import 任何宿主包，这样新版本照样能装，而不是被预发布 peer 范围挡在门外。
+
 
 ## 使用
 

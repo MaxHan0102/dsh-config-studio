@@ -10,7 +10,6 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/dsh-config-studio"><img alt="npm version" src="https://img.shields.io/npm/v/dsh-config-studio" /></a>
-  <a href="https://www.npmjs.com/package/dsh-config-studio"><img alt="npm downloads" src="https://img.shields.io/npm/dm/dsh-config-studio" /></a>
   <a href="https://github.com/MaxHan0102/dsh-config-studio/releases"><img alt="release" src="https://img.shields.io/github/v/release/MaxHan0102/dsh-config-studio?label=release" /></a>
   <a href="https://github.com/MaxHan0102/dsh-config-studio/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/MaxHan0102/dsh-config-studio" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
@@ -37,57 +36,39 @@ That restriction is reasonable for live-reloadable preferences, but it leaves mo
 
 ## Install
 
-The package is a `dsh.bundle` bundle with **no dependencies and no build step**, so every source below is equivalent. Pick the one that matches your host.
+Published on npm as [`dsh-config-studio`](https://www.npmjs.com/package/dsh-config-studio), and also a plain `dsh.bundle` bundle with **no dependencies and no build step**. Every source below installs the same code — pick the one that matches your host.
 
-### DSH Desktop (recommended)
-
-Desktop profiles are managed by the application, so `dsh plugin` cannot install into them:
-
-1. Open **Settings → Plugins**.
-2. Enter the npm package name in the install box:
-
-   ```text
-   dsh-config-studio
-   ```
-
-   Alternatively, use the release tarball:
-
-   ```text
-   https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
-   ```
-
-   or
-
-   ```text
-   github:MaxHan0102/dsh-config-studio
-   ```
-
-3. Make sure **dsh-config-studio** is enabled in the list, then reload the page (`Cmd/Ctrl+R`).
-
-### dsh web or a custom profile
+### npm (recommended)
 
 ```bash
-# npm registry (recommended)
 dsh plugin --profile web add dsh-config-studio
+```
 
-# or a release tarball (pinned to a tag, so the URL never rots)
+Replace `web` with your own profile name. Restart the host if it does not pick the plugin up, then reload the page.
+
+**DSH Desktop** manages its own profile, so the command above cannot install into it: open **Settings → Plugins**, paste `dsh-config-studio` into the install box, make sure the plugin is enabled, then reload the page (`Cmd/Ctrl+R`).
+
+### Without npm
+
+The same version installs from the release tarball or straight from this repository — useful on a host that cannot reach the registry:
+
+```bash
+# release tarball (pinned to a tag, so the URL never rots)
 dsh plugin --profile web add https://github.com/MaxHan0102/dsh-config-studio/releases/download/v0.1.0/dsh-config-studio-0.1.0.tgz
 
 # or straight from the repository
 dsh plugin --profile web add github:MaxHan0102/dsh-config-studio
 ```
 
-Replace `web` with your own profile name. Restart the host if it does not pick the plugin up, then reload the page.
+On Desktop, paste either string into the same install box.
 
 ### Update
-
-Install the latest npm version:
 
 ```bash
 dsh plugin --profile web add dsh-config-studio@latest
 ```
 
-On Desktop, use the update control on the plugin's card. A git install has no automatic update check — remove and re-add it.
+On Desktop, use the update control on the plugin's card. A tarball or git install has no update check — remove and re-add it with the newer tag or commit.
 
 ### Remove
 
@@ -101,12 +82,13 @@ Any override the plugin wrote stays in `cordis.patch.yml`; removing the plugin d
 
 | | |
 |---|---|
-| DSH | `0.2.1-rc.5` or newer (tested on `0.2.1-rc.5`) |
+| DSH | `0.2.1-rc.5` or newer (tested on `0.2.1-rc.5` and `0.2.2-rc.1`) |
 | Services | `ctx.configEditor` and `ctx.connection.fetch` — both ship with the Web composition |
 | Node | 20+ |
 | Browser | any current Web GUI; the section is a normal client plugin |
 
 The package deliberately declares no DSH version range: it is plain JavaScript with no host imports, so it keeps installing on newer hosts instead of being gated out by a prerelease peer range.
+
 
 ## Usage
 
